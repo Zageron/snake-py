@@ -5,6 +5,7 @@
 The entrypoint for both poetry and Nuitka
 """
 
+import math
 from typing_extensions import TypeAlias
 import pygame as pg
 from enum import Enum
@@ -48,36 +49,6 @@ class Food(object):
         self.__current_step = 0
 
 
-class Stage(object):
-    def __init__(self, size: int, first_food: Coordinate) -> None:
-        self.__cells_wide = size
-        self.__cells_high = size
-        self.__food_coordinate = first_food
-
-    def reset_food(self, snake) -> None:
-        choices_for_food: list(int) = list(
-            set(GRID_LIST).symmetric_difference(set(snake.positions))
-        )
-
-        rand_x: int = choices_for_food / GRID_SIZE
-        rand_y: int = choices_for_food % 11
-
-        self.__food_coordinate = Coordinate([rand_x, rand_y])
-
-    def __get_cells_wide(self) -> int:
-        return self.__cells_wide
-
-    def __get_cells_high(self) -> int:
-        return self.__cells_high
-
-    def __get_food_coordinate(self) -> Coordinate:
-        return self.__food_coordinate
-
-    cells_wide: int = property(__get_cells_wide)
-    cells_high: int = property(__get_cells_high)
-    food_coordinate: int = property(__get_food_coordinate)
-
-
 class Snake(object):
     def __init__(self, starting_position: Coordinate, starting_direction: Direction):
         self.__positions = list()
@@ -103,6 +74,38 @@ class Snake(object):
     length: int = property(__get_length)
     positions: list[Coordinate] = property(__get_positions)
     direction: Direction = property(__get_direction, __set_direction)
+
+
+class Stage(object):
+    def __init__(self, size: int, snake: Snake) -> None:
+        self.__cells_wide = size
+        self.__cells_high = size
+        self.reset_food(snake)
+
+    def reset_food(self, snake) -> None:
+        snake_list = set([pos[0] * pos[1] for pos in snake.positions])
+        choices_for_food: list(int) = list(
+            set(GRID_LIST).symmetric_difference(snake_list)
+        )
+
+        selection = random.choice(choices_for_food)
+        rand_x: int = selection % 11
+        rand_y: int = math.floor(selection / GRID_SIZE)
+
+        self.__food_coordinate = Coordinate([rand_x, rand_y])
+
+    def __get_cells_wide(self) -> int:
+        return self.__cells_wide
+
+    def __get_cells_high(self) -> int:
+        return self.__cells_high
+
+    def __get_food_coordinate(self) -> Coordinate:
+        return self.__food_coordinate
+
+    cells_wide: int = property(__get_cells_wide)
+    cells_high: int = property(__get_cells_high)
+    food_coordinate: int = property(__get_food_coordinate)
 
 
 def get_new_coordinate(coordinate: Coordinate, direction: Direction) -> Coordinate:
@@ -141,10 +144,14 @@ def draw_snake(screen, snake: Snake) -> None:
     pg.draw.rect(screen, (150, 200, 20), snake_square)
 
 
-def draw_food(stage: Stage, food: Food) -> None:
-    # Stage for position
-    # Food for animation state
-    print("Food is at %s" % (stage.food_coordinate,))
+def draw_food(screen, stage: Stage, food: Food) -> None:
+    food_square = pg.Rect(
+        0, 0, WINSIZE[0] / (GRID_SIZE * 2), WINSIZE[1] / (GRID_SIZE * 2)
+    )
+    coordinate = stage.food_coordinate
+    food_square.x = coordinate[0] * food_square.width
+    food_square.y = coordinate[1] * food_square.height
+    pg.draw.rect(screen, (150, 200, 20), food_square)
     pass
 
 
@@ -197,8 +204,8 @@ def main():
 
         # State
         if state == State.RESTART:
-            stage: Stage = Stage(GRID_SIZE, (5, 5))
             snake: Snake = Snake((5, 5), random.choice(list(Direction)))
+            stage: Stage = Stage(GRID_SIZE, snake)
             state = State.START
             food: Food = Food()
         elif state == State.START:
@@ -238,7 +245,7 @@ def main():
                 should_redraw = False
                 screen.fill(black)
                 draw_snake(screen, snake)
-                draw_food(stage, food)
+                draw_food(screen, stage, food)
                 screen.blit(update_fps(clock, font), (10, 0))
                 pg.display.flip()
                 pg.display.update()
