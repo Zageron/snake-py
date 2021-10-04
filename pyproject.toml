@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "snake"
+version = "0.1.0"
+description = "A python implementation of Snake."
+authors = ["Zageron <hello@adambryant.ca>"]
+license = "AGPL-3.0"
+
+packages = [{ include = "snake", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pygame = "^2.0.1"
+pygame-gui = "^0.5.7"
+numpy = "^1.21.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.2"
+pylint = "^2.5.2"
+black = "^19.10b0"
+pytest = "^5.4.2"
+
+[tool.poetry.scripts]
+my-project = "snake.snake:run"
+
+[tool.pyright]
+include = ["src"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

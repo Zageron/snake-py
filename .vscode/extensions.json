@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "codezombiech.gitignore",
+        "coenraads.bracket-pair-colorizer-2",
+        "eamodio.gitlens",
+        "kevinrose.vsc-python-indent",
+        "davidanson.vscode-markdownlint",
+        "ms-python.vscode-pylance"
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=88"
+    ],
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=lxml",
+        "--generate-members"
+    ],
+    "editor.formatOnSave": true,
+}
