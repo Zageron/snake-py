@@ -87,13 +87,22 @@ class Snake(object):
         next_position = get_new_coordinate(self.__first_position(), new_direction)
         return prev_position != next_position
 
+    def __contains_coordinate(self, position: Coordinate):
+        return position in self.__positions
+
     def grow(self) -> None:
         self.__positions.append(self.__positions[-1])
 
-    def update_positions(self) -> None:
+    def update_positions(self) -> bool:
         first_pos: Coordinate = self.__first_position()
-        self.__positions = self.__positions[:-1]
-        self.__positions.insert(0, get_new_coordinate(first_pos, self.direction))
+        new_position: Coordinate = get_new_coordinate(first_pos, self.direction)
+
+        if self.__contains_coordinate(new_position):
+            return False
+        else:
+            self.__positions = self.__positions[:-1]
+            self.__positions.insert(0, get_new_coordinate(first_pos, self.direction))
+            return True
 
 
 class Stage(object):
@@ -140,10 +149,7 @@ def get_new_coordinate(coordinate: Coordinate, direction: Direction) -> Coordina
 
 
 def move_snake(stage: Stage, snake: Snake) -> bool:
-    snake.update_positions()
-
-    # return False when the snake should die because of user error.
-    return True
+    return snake.update_positions()
 
 
 def snake_check_food(stage: Stage, snake: Snake) -> bool:
