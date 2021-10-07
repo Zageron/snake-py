@@ -8,7 +8,7 @@ The entrypoint for both poetry and Nuitka
 import math
 from typing_extensions import TypeAlias
 import pygame as pg
-from enum import Enum
+from enum import IntEnum
 import random
 
 WINSIZE = [880, 880]
@@ -17,10 +17,14 @@ GRID_SIZE = 11
 CELL_SIZE = WINSIZE[0] / GRID_SIZE
 GRID_LIST = [iter for iter in range(GRID_SIZE * GRID_SIZE)]
 
+BLACK: pg.Color = pg.Color(20, 20, 40)
+RED: pg.Color = pg.Color(200, 50, 50)
+GREEN: pg.Color = pg.Color(50, 200, 50)
+
 Coordinate: TypeAlias = tuple[int, int]
 
 
-class Direction(Enum):
+class Direction(IntEnum):
     UP = 1
     LEFT = 2
     DOWN = 3
@@ -28,7 +32,7 @@ class Direction(Enum):
     NONE = 5
 
 
-class State(Enum):
+class State(IntEnum):
     RESTART = 1
     START = 2
     PLAY = 3
@@ -53,27 +57,65 @@ class Snake(object):
     def __init__(self, starting_position: Coordinate, starting_direction: Direction):
         self.__positions = list()
         self.__positions.extend([starting_position])
+        self.__directions = list()
         self.__direction = starting_direction
-        self.__length = 1
-
-    def grow(self) -> None:
-        self.length += 1
 
     def __get_direction(self) -> Direction:
         return self.__direction
 
     def __set_direction(self, new_direction) -> None:
-        self.__direction = new_direction
+        if self.__test_direction_is_good(new_direction):
+            self.__direction = new_direction
 
     def __get_length(self) -> int:
-        return self.__length
+        return len(self.__positions)
 
     def __get_positions(self) -> list[Coordinate]:
         return self.__positions
 
+    def __get_directions(self) -> list[Direction]:
+        return self.__directions
+
     length: int = property(__get_length)
     positions: list[Coordinate] = property(__get_positions)
     direction: Direction = property(__get_direction, __set_direction)
+
+    def __first_position(self) -> Coordinate:
+        return self.__positions[0]
+
+    def __test_direction_is_good(self, new_direction: Direction) -> bool:
+        if self.__get_length() == 1:
+            return True
+
+        prev_position = self.__positions[1]
+        next_position = get_new_coordinate(self.__first_position(), new_direction)
+        return prev_position != next_position
+
+    def grow(self) -> None:
+        if len(self.__directions) != 1:
+            self.__directions.append(self.__directions[-1])
+        self.__positions.append(self.__positions[-1])
+
+    def update_positions(self) -> None:
+        new_directions: list[Direction] = list()
+
+        for index, direction in enumerate(self.__directions):
+            if (index + 1) < len(self.positions):
+                if self.positions[index + 1] == self.positions[index]:
+                    break
+
+                self.positions[index + 1] = get_new_coordinate(
+                    self.positions[index + 1], direction
+                )
+
+                if (index + 1) < len(self.positions) - 1:
+                    new_directions.append(direction)
+
+        self.positions[0] = get_new_coordinate(
+            self.__first_position(), self.__direction
+        )
+        new_directions.insert(0, self.__direction)
+        self.__directions = new_directions
 
 
 class Stage(object):
@@ -120,16 +162,19 @@ def get_new_coordinate(coordinate: Coordinate, direction: Direction) -> Coordina
 
 
 def move_snake(stage: Stage, snake: Snake) -> bool:
-    snake.positions[0] = get_new_coordinate(snake.positions[0], snake.direction)
-    if snake.length < len(snake.positions):
-        print("The snake should grow now...")
+    # Move through the list of coordinates.
+    # Keep track of a list of directions which each point is going to need to follow.
+    snake.update_positions()
 
     return True
 
 
 def snake_check_food(stage: Stage, snake: Snake) -> bool:
-    # Check
-    pass
+    food_pos = stage.food_coordinate
+    snake_pos = snake.positions[0]
+
+    if food_pos == snake_pos:
+        return True
 
 
 def draw_snake(screen, snake: Snake) -> None:
@@ -137,22 +182,22 @@ def draw_snake(screen, snake: Snake) -> None:
     print("Snake has positions at: ", end="")
     print(*snake.positions, sep=", ")
 
-    snake_square = pg.Rect(0, 0, WINSIZE[0] / GRID_SIZE, WINSIZE[1] / GRID_SIZE)
-    coordinate = snake.positions[0]
-    snake_square.x = coordinate[0] * snake_square.width
-    snake_square.y = coordinate[1] * snake_square.height
-    pg.draw.rect(screen, (150, 200, 20), snake_square)
+    for coordinate in snake.positions:
+        snake_square = pg.Rect(
+            coordinate[0] * WINSIZE[0] / GRID_SIZE,
+            coordinate[1] * WINSIZE[1] / GRID_SIZE,
+            WINSIZE[0] / GRID_SIZE,
+            WINSIZE[1] / GRID_SIZE,
+        )
+        pg.draw.rect(screen, GREEN, snake_square)
 
 
 def draw_food(screen, stage: Stage, food: Food) -> None:
-    food_square = pg.Rect(
-        0, 0, WINSIZE[0] / (GRID_SIZE * 2), WINSIZE[1] / (GRID_SIZE * 2)
-    )
+    food_square = pg.Rect(0, 0, WINSIZE[0] / GRID_SIZE, WINSIZE[1] / GRID_SIZE)
     coordinate = stage.food_coordinate
     food_square.x = coordinate[0] * food_square.width
     food_square.y = coordinate[1] * food_square.height
-    pg.draw.rect(screen, (150, 200, 20), food_square)
-    pass
+    pg.draw.rect(screen, RED, food_square)
 
 
 def update_fps(clock, font):
@@ -167,16 +212,14 @@ def main():
     pg.init()
     screen = pg.display.set_mode(WINSIZE)
     pg.display.set_caption("Snake")
-
-    black: tuple[int, int, int] = (20, 20, 40)
-    screen.fill(black)
+    screen.fill(BLACK)
 
     clock = pg.time.Clock()
     font = pg.font.SysFont("Arial", 18)
 
     state: State = State.RESTART
 
-    tick_length: int = 1000
+    tick_length: int = 750
 
     accumulated_time: int = 0
     should_redraw: bool = True
@@ -235,7 +278,7 @@ def main():
         # Draw
         if state == State.START:
             # Draw some text to inform the user what to do.
-            screen.fill(black)
+            screen.fill(BLACK)
             screen.blit(update_fps(clock, font), (10, 0))
             pg.display.flip()
             pg.display.update()
@@ -243,7 +286,7 @@ def main():
         elif state == State.PLAY:
             if should_redraw:
                 should_redraw = False
-                screen.fill(black)
+                screen.fill(BLACK)
                 draw_snake(screen, snake)
                 draw_food(screen, stage, food)
                 screen.blit(update_fps(clock, font), (10, 0))
