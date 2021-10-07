@@ -55,8 +55,7 @@ class Food(object):
 
 class Snake(object):
     def __init__(self, starting_position: Coordinate, starting_direction: Direction):
-        self.__positions = list()
-        self.__positions.extend([starting_position])
+        self.__positions = list([starting_position] * 3)
         self.__direction = starting_direction
 
     def __get_direction(self) -> Direction:
@@ -76,7 +75,7 @@ class Snake(object):
     positions: list[Coordinate] = property(__get_positions)
     direction: Direction = property(__get_direction, __set_direction)
 
-    def __first_position(self) -> Coordinate:
+    def first_position(self) -> Coordinate:
         return self.__positions[0]
 
     def __test_direction_is_good(self, new_direction: Direction) -> bool:
@@ -84,7 +83,7 @@ class Snake(object):
             return True
 
         prev_position = self.__positions[1]
-        next_position = get_new_coordinate(self.__first_position(), new_direction)
+        next_position = get_new_coordinate(self.first_position(), new_direction)
         return prev_position != next_position
 
     def __contains_coordinate(self, position: Coordinate):
@@ -94,7 +93,7 @@ class Snake(object):
         self.__positions.append(self.__positions[-1])
 
     def update_positions(self) -> bool:
-        first_pos: Coordinate = self.__first_position()
+        first_pos: Coordinate = self.first_position()
         new_position: Coordinate = get_new_coordinate(first_pos, self.direction)
 
         if self.__contains_coordinate(new_position):
@@ -148,8 +147,18 @@ def get_new_coordinate(coordinate: Coordinate, direction: Direction) -> Coordina
         return (coordinate[0] + 1, coordinate[1])
 
 
+def check_out_of_bounds(stage: Stage, snake: Snake) -> bool:
+    front_of_snake: Coordinate = snake.first_position()
+    return not (
+        front_of_snake[0] < 0
+        or front_of_snake[0] >= stage.cells_wide
+        or front_of_snake[1] < 0
+        or front_of_snake[1] >= stage.cells_high
+    )
+
+
 def move_snake(stage: Stage, snake: Snake) -> bool:
-    return snake.update_positions()
+    return snake.update_positions() and check_out_of_bounds(stage, snake)
 
 
 def snake_check_food(stage: Stage, snake: Snake) -> bool:
@@ -202,7 +211,7 @@ def main():
 
     state: State = State.RESTART
 
-    tick_length: int = 750
+    tick_length: int = 250
 
     accumulated_time: int = 0
     should_redraw: bool = True
