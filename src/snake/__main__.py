@@ -57,7 +57,6 @@ class Snake(object):
     def __init__(self, starting_position: Coordinate, starting_direction: Direction):
         self.__positions = list()
         self.__positions.extend([starting_position])
-        self.__directions = list()
         self.__direction = starting_direction
 
     def __get_direction(self) -> Direction:
@@ -72,9 +71,6 @@ class Snake(object):
 
     def __get_positions(self) -> list[Coordinate]:
         return self.__positions
-
-    def __get_directions(self) -> list[Direction]:
-        return self.__directions
 
     length: int = property(__get_length)
     positions: list[Coordinate] = property(__get_positions)
@@ -92,30 +88,12 @@ class Snake(object):
         return prev_position != next_position
 
     def grow(self) -> None:
-        if len(self.__directions) != 1:
-            self.__directions.append(self.__directions[-1])
         self.__positions.append(self.__positions[-1])
 
     def update_positions(self) -> None:
-        new_directions: list[Direction] = list()
-
-        for index, direction in enumerate(self.__directions):
-            if (index + 1) < len(self.positions):
-                if self.positions[index + 1] == self.positions[index]:
-                    break
-
-                self.positions[index + 1] = get_new_coordinate(
-                    self.positions[index + 1], direction
-                )
-
-                if (index + 1) < len(self.positions) - 1:
-                    new_directions.append(direction)
-
-        self.positions[0] = get_new_coordinate(
-            self.__first_position(), self.__direction
-        )
-        new_directions.insert(0, self.__direction)
-        self.__directions = new_directions
+        first_pos: Coordinate = self.__first_position()
+        self.__positions = self.__positions[:-1]
+        self.__positions.insert(0, get_new_coordinate(first_pos, self.direction))
 
 
 class Stage(object):
@@ -162,10 +140,9 @@ def get_new_coordinate(coordinate: Coordinate, direction: Direction) -> Coordina
 
 
 def move_snake(stage: Stage, snake: Snake) -> bool:
-    # Move through the list of coordinates.
-    # Keep track of a list of directions which each point is going to need to follow.
     snake.update_positions()
 
+    # return False when the snake should die because of user error.
     return True
 
 
