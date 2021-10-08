@@ -209,13 +209,13 @@ def main():
                 if event.key == pg.K_ESCAPE:
                     raise SystemExit
             elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_w:
+                if event.key == pg.K_w or event.key == pg.K_UP:
                     direction = Direction.UP
-                elif event.key == pg.K_a:
+                elif event.key == pg.K_a or event.key == pg.K_LEFT:
                     direction = Direction.LEFT
-                elif event.key == pg.K_s:
+                elif event.key == pg.K_s or event.key == pg.K_DOWN:
                     direction = Direction.DOWN
-                elif event.key == pg.K_d:
+                elif event.key == pg.K_d or event.key == pg.K_RIGHT:
                     direction = Direction.RIGHT
 
         # Timer
