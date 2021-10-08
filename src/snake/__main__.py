@@ -39,20 +39,6 @@ class State(IntEnum):
     QUIT = 4
 
 
-class Food(object):
-    def __init(self) -> None:
-        self.__min_size = 25
-        self.__max_size = 100
-        self.__steps = 3
-        self.__current_step = 0
-
-    def __get_current_size(self) -> int:
-        return self.__
-
-    def step_food_animation(self) -> None:
-        self.__current_step = 0
-
-
 class Snake(object):
     def __init__(self, starting_position: Coordinate, starting_direction: Direction):
         self.__positions = list([starting_position] * 3)
@@ -184,7 +170,7 @@ def draw_snake(screen, snake: Snake) -> None:
         pg.draw.rect(screen, GREEN, snake_square)
 
 
-def draw_food(screen, stage: Stage, food: Food) -> None:
+def draw_food(screen, stage: Stage) -> None:
     food_square = pg.Rect(0, 0, WINSIZE[0] / GRID_SIZE, WINSIZE[1] / GRID_SIZE)
     coordinate = stage.food_coordinate
     food_square.x = coordinate[0] * food_square.width
@@ -242,7 +228,6 @@ def main():
             snake: Snake = Snake((5, 5), random.choice(list(Direction)))
             stage: Stage = Stage(GRID_SIZE, snake)
             state = State.START
-            food: Food = Food()
         elif state == State.START:
             if direction != Direction.NONE:
                 snake.direction = direction
@@ -280,7 +265,7 @@ def main():
                 should_redraw = False
                 screen.fill(BLACK)
                 draw_snake(screen, snake)
-                draw_food(screen, stage, food)
+                draw_food(screen, stage)
                 screen.blit(update_fps(clock, font), (10, 0))
                 pg.display.flip()
                 pg.display.update()
