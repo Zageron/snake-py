@@ -156,10 +156,6 @@ def snake_check_food(stage: Stage, snake: Snake) -> bool:
 
 
 def draw_snake(screen, snake: Snake) -> None:
-    print("Snake is length: %s" % snake.length)
-    print("Snake has positions at: ", end="")
-    print(*snake.positions, sep=", ")
-
     for coordinate in snake.positions:
         snake_square = pg.Rect(
             coordinate[0] * WINSIZE[0] / GRID_SIZE,
