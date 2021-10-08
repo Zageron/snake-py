@@ -205,6 +205,9 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:  # Usually wise to be able to close your program.
                 raise SystemExit
+            elif event.type == pg.KEYUP:
+                if event.key == pg.K_ESCAPE:
+                    raise SystemExit
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_w:
                     direction = Direction.UP
