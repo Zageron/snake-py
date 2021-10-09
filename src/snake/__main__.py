@@ -6,10 +6,14 @@ The entrypoint for both poetry and Nuitka
 """
 
 import math
-from typing_extensions import TypeAlias
-import pygame as pg
-from enum import IntEnum
 import random
+from enum import IntEnum
+
+import pygame as pg
+from typing_extensions import TypeAlias
+
+from .score import Score
+from .score_view import ScoreView
 
 WINSIZE = [880, 880]
 CENTER = [WINSIZE[0] / 2, WINSIZE[1] / 2]
@@ -174,6 +178,11 @@ def draw_food(screen, stage: Stage) -> None:
     pg.draw.rect(screen, RED, food_square)
 
 
+def draw_score(screen, score_view: ScoreView) -> None:
+    score_view.update_score_text()
+    score_view.render(screen, WINSIZE)
+
+
 def update_fps(clock, font):
     fps = str(int(clock.get_fps()))
     fps_text = font.render(fps, 1, pg.Color("coral"))
@@ -192,6 +201,9 @@ def main():
     font = pg.font.SysFont("Arial", 18)
 
     state: State = State.RESTART
+
+    score: Score = Score()
+    score_view: ScoreView = ScoreView(score, font)
 
     tick_length: int = 250
 
@@ -224,8 +236,9 @@ def main():
 
         # State
         if state == State.RESTART:
-            snake: Snake = Snake((5, 5), random.choice(list(Direction)))
-            stage: Stage = Stage(GRID_SIZE, snake)
+            score.reset_score()
+            snake = Snake((5, 5), random.choice(list(Direction)))
+            stage = Stage(GRID_SIZE, snake)
             state = State.START
         elif state == State.START:
             if direction != Direction.NONE:
@@ -245,6 +258,7 @@ def main():
                     if got_food:
                         snake.grow()
                         stage.reset_food(snake)
+                        score.increase_score()
                 else:
                     state = State.RESTART
         else:  # state == State.QUIT
@@ -265,6 +279,7 @@ def main():
                 screen.fill(BLACK)
                 draw_snake(screen, snake)
                 draw_food(screen, stage)
+                draw_score(screen, score_view)
                 screen.blit(update_fps(clock, font), (10, 0))
                 pg.display.flip()
                 pg.display.update()
