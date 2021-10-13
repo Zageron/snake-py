@@ -10,6 +10,9 @@ import random
 from enum import IntEnum
 
 import pygame as pg
+import pygame_gui
+from pygame_gui.core.interfaces.manager_interface import IUIManagerInterface
+from pygame_gui.elements.ui_text_box import UITextBox
 from typing_extensions import TypeAlias
 
 from .score import Score
@@ -178,15 +181,17 @@ def draw_food(screen, stage: Stage) -> None:
     pg.draw.rect(screen, RED, food_square)
 
 
-def draw_score(screen, score_view: ScoreView) -> None:
-    score_view.update_score_text()
-    score_view.render(screen, WINSIZE)
-
-
-def update_fps(clock, font):
-    fps = str(int(clock.get_fps()))
-    fps_text = font.render(fps, 1, pg.Color("coral"))
-    return fps_text
+def update_score_box(
+    score_box: UITextBox, hiscore: int, currentScore: int
+) -> UITextBox:
+    score_box.html_text = (
+        "<font face=fira_code color=#A784E2 size=4>"
+        f"High Score: {hiscore}"
+        "<br>"
+        f"Current Score: {currentScore}"
+        "</font>"
+    )
+    score_box.rebuild()
 
 
 def main():
@@ -198,12 +203,42 @@ def main():
     screen.fill(BLACK)
 
     clock = pg.time.Clock()
-    font = pg.font.SysFont("Arial", 18)
+
+    # PyGame GUI
+    manager = pygame_gui.UIManager((WINSIZE[0], WINSIZE[1]), "theme.json")
+    manager.preload_fonts(
+        [
+            {"name": "fira_code", "point_size": 16, "style": "regular"},
+            {"name": "fira_code", "html_size": 2, "style": "bold"},
+            {"name": "fira_code", "html_size": 2, "style": "bold_italic"},
+        ]
+    )
+    how_to_play_info_box = UITextBox(
+        "<font face=fira_code color=#E784A2 size=4.5>Welcome to PYTHON</font>"
+        "<font face=fira_code>"
+        "<br> <br>"
+        "Use WASD or the arrow keys to control the snake."
+        "<br> <br>"
+        "If the snake hits the edge or itself it will die. Collect apples!"
+        "<br> <br>"
+        "Press any movement key to start moving in that direction!"
+        "</font>",
+        pg.Rect((100, 100), (250, 250)),
+        manager=manager,
+        object_id="#play_box",
+    )
+
+    score_box = UITextBox(
+        "",
+        pg.Rect((WINSIZE[1] - 250 - 25, 25), (250, 55)),
+        manager=manager,
+        object_id="#score_box",
+    )
+    update_score_box(score_box, 0, 0)
 
     state: State = State.RESTART
 
     score: Score = Score()
-    score_view: ScoreView = ScoreView(score, font)
 
     tick_length: int = 250
 
@@ -229,22 +264,30 @@ def main():
                     direction = Direction.DOWN
                 elif event.key == pg.K_d or event.key == pg.K_RIGHT:
                     direction = Direction.RIGHT
+            manager.process_events(event)
 
         # Timer
-        dt = clock.tick(120)
+        dt = clock.tick(60)
         accumulated_time += dt
 
         # State
         if state == State.RESTART:
             score.reset_score()
+            update_score_box(score_box, score.hiscore, score.score)
             snake = Snake((5, 5), random.choice(list(Direction)))
             stage = Stage(GRID_SIZE, snake)
             state = State.START
+            how_to_play_info_box.visible = True
+            score_box.visible = False
+
         elif state == State.START:
             if direction != Direction.NONE:
                 snake.direction = direction
                 accumulated_time = tick_length
                 state = State.PLAY
+                how_to_play_info_box.visible = False
+                score_box.visible = True
+
         elif state == State.PLAY:  # Play Game
             if direction != Direction.NONE:
                 snake.direction = direction
@@ -259,19 +302,22 @@ def main():
                         snake.grow()
                         stage.reset_food(snake)
                         score.increase_score()
+                        update_score_box(score_box, score.hiscore, score.score)
                 else:
                     state = State.RESTART
         else:  # state == State.QUIT
             done = 1
             break
 
+        manager.update(dt)
+
         # Draw
         if state == State.START:
             # Draw some text to inform the user what to do.
             screen.fill(BLACK)
-            screen.blit(update_fps(clock, font), (10, 0))
+            draw_snake(screen, snake)
+            manager.draw_ui(screen)
             pg.display.flip()
-            pg.display.update()
             pass
         elif state == State.PLAY:
             if should_redraw:
@@ -279,10 +325,8 @@ def main():
                 screen.fill(BLACK)
                 draw_snake(screen, snake)
                 draw_food(screen, stage)
-                draw_score(screen, score_view)
-                screen.blit(update_fps(clock, font), (10, 0))
+                manager.draw_ui(screen)
                 pg.display.flip()
-                pg.display.update()
         else:
             # Do not draw.
             pass
