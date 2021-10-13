@@ -11,12 +11,10 @@ from enum import IntEnum
 
 import pygame as pg
 import pygame_gui
-from pygame_gui.core.interfaces.manager_interface import IUIManagerInterface
 from pygame_gui.elements.ui_text_box import UITextBox
 from typing_extensions import TypeAlias
 
 from .score import Score
-from .score_view import ScoreView
 
 WINSIZE = [880, 880]
 CENTER = [WINSIZE[0] / 2, WINSIZE[1] / 2]
