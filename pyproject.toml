@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "snake"
-version = "0.1.0"
+version = "1.0.0"
 description = "A python implementation of Snake."
 authors = ["Zageron <hello@adambryant.ca>"]
 license = "AGPL-3.0"
