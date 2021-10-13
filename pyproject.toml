@@ -14,10 +14,10 @@ pygame-gui = "^0.5.7"
 numpy = "^1.21.1"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.9.2"
+flake8 = "^4.0.1"
 pylint = "^2.11.1"
 black = "^19.10b0"
-pytest = "^5.4.3"
+pytest = "^6.2.5"
 nuitka = "^0.6.17.2"
 zstandard = "^0.15.2"
 
