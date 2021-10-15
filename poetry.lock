@@ -144,7 +144,7 @@ python-versions = "*"
 
 [[package]]
 name = "nuitka"
-version = "0.6.17.2"
+version = "0.6.17.3"
 description = "Python compiler with full language support and CPython compatibility"
 category = "dev"
 optional = false
@@ -479,7 +479,7 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 nuitka = [
-    {file = "Nuitka-0.6.17.2.tar.gz", hash = "sha256:8cca686f8e11bdf16dbb9d9e4b32d7ef43b29a7697387b2d93d7f17dc96b97d1"},
+    {file = "Nuitka-0.6.17.3.tar.gz", hash = "sha256:cdfe078860b204ce8b0f255e9a3e3e4d2023d03decfa5cad37a28d62ebc3a854"},
 ]
 numpy = [
     {file = "numpy-1.21.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:38e8648f9449a549a7dfe8d8755a5979b45b3538520d1e735637ef28e8c2dc50"},
