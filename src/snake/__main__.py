@@ -203,7 +203,7 @@ def main():
     clock = pg.time.Clock()
 
     # PyGame GUI
-    manager = pygame_gui.UIManager((WINSIZE[0], WINSIZE[1]), "theme.json")
+    manager = pygame_gui.UIManager((WINSIZE[0], WINSIZE[1]), "data/theme.json")
     manager.preload_fonts(
         [
             {"name": "fira_code", "point_size": 16, "style": "regular"},
@@ -221,16 +221,17 @@ def main():
         "<br> <br>"
         "Press any movement key to start moving in that direction!"
         "</font>",
-        pg.Rect((100, 100), (250, 250)),
+        pg.Rect((75, 75), (300, 300)),
         manager=manager,
         object_id="#play_box",
     )
 
     score_box = UITextBox(
         "",
-        pg.Rect((WINSIZE[1] - 250 - 25, 25), (250, 55)),
+        pg.Rect((WINSIZE[1] - 250 - 25, 25), (250, 70)),
         manager=manager,
         object_id="#score_box",
+        visible=False,
     )
     update_score_box(score_box, 0, 0)
 
@@ -271,12 +272,12 @@ def main():
         # State
         if state == State.RESTART:
             score.reset_score()
+            how_to_play_info_box.visible = True
+            score_box.visible = False
             update_score_box(score_box, score.hiscore, score.score)
             snake = Snake((5, 5), random.choice(list(Direction)))
             stage = Stage(GRID_SIZE, snake)
             state = State.START
-            how_to_play_info_box.visible = True
-            score_box.visible = False
 
         elif state == State.START:
             if direction != Direction.NONE:
@@ -285,6 +286,8 @@ def main():
                 state = State.PLAY
                 how_to_play_info_box.visible = False
                 score_box.visible = True
+                how_to_play_info_box.rebuild()
+                score_box.rebuild()
 
         elif state == State.PLAY:  # Play Game
             if direction != Direction.NONE:
