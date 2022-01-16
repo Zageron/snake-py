@@ -6,6 +6,7 @@ The entrypoint for both poetry and Nuitka
 """
 
 import math
+import os
 import random
 from enum import IntEnum
 
@@ -183,7 +184,7 @@ def update_score_box(
     score_box: UITextBox, hiscore: int, currentScore: int
 ) -> UITextBox:
     score_box.html_text = (
-        "<font face=fira_code color=#A784E2 size=4>"
+        "<font face=fira_mono color=#A784E2 size=4>"
         f"High Score: {hiscore}"
         "<br>"
         f"Current Score: {currentScore}"
@@ -202,15 +203,21 @@ def main():
 
     clock = pg.time.Clock()
 
+    print(f" get cwd: {os.getcwd()}")
+    print(f" get cwd: {os.getcwd()}/data/theme.json")
+
     # PyGame GUI
-    manager = pygame_gui.UIManager((WINSIZE[0], WINSIZE[1]), "data/theme.json")
+    manager = pygame_gui.UIManager(
+        (WINSIZE[0], WINSIZE[1]),
+        theme_path="./data/theme.json",
+    )
+
     manager.preload_fonts(
         [
             {"name": "fira_code", "point_size": 16, "style": "regular"},
-            {"name": "fira_code", "html_size": 2, "style": "bold"},
-            {"name": "fira_code", "html_size": 2, "style": "bold_italic"},
         ]
     )
+
     how_to_play_info_box = UITextBox(
         "<font face=fira_code color=#E784A2 size=4.5>Welcome to PYTHON</font>"
         "<font face=fira_code>"

@@ -14,5 +14,5 @@ Assuming the Python extension is enabled/installed, you should now be able to bu
 ## Package for Distribution
 
 ```bash
-nuitka --onefile --plugin-enable=numpy --plugin-enable=pylint-warnings --include-package-data=pygame_gui.data --include-data-dir=data=data -o package/Snake.exe --output-dir=package --remove-output src/snake/__main__.py
+nuitka --onefile --plugin-enable=pylint-warnings --include-package-data=pygame_gui.data --include-data-dir=data=data -o package/Snake.exe --output-dir=package src/snake/__main__.py
 ```
