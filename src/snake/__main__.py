@@ -203,13 +203,12 @@ def main():
 
     clock = pg.time.Clock()
 
-    print(f" get cwd: {os.getcwd()}")
-    print(f" get cwd: {os.getcwd()}/data/theme.json")
-
     # PyGame GUI
+    theme_path = os.path.join(os.sep, os.getcwd(), "data", "theme.json")
+
     manager = pygame_gui.UIManager(
         (WINSIZE[0], WINSIZE[1]),
-        theme_path="./data/theme.json",
+        theme_path=theme_path,
     )
 
     manager.preload_fonts(
