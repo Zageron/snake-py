@@ -8,17 +8,17 @@ license = "AGPL-3.0"
 packages = [{ include = "snake", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.10.1"
+python = "^3.10.5"
 pygame = "^2.1.2"
-pygame-gui = "^0.6.2"
-numpy = "^1.22.1"
+pygame-gui = "^0.6.4"
+numpy = "^1.23.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
-pylint = "^2.12.2"
+pylint = "^2.14.3"
 black = "^21.12b0"
 pytest = "^6.2.5"
-nuitka = "^0.6.19.4"
+nuitka = "^0.6.19.7"
 zstandard = "^0.16.0"
 
 [tool.poetry.scripts]
